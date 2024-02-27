@@ -1,10 +1,12 @@
 package org.qubitsoft;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,5 +40,23 @@ public class CsvReader {
         }
         return reservationList;
     }
+
+    public void writeReservation(List<Reservation> reservationList, String csvPath){
+        try(CSVWriter writer = new CSVWriter(new FileWriter(csvPath))){
+            String[] header = {"Naziv hotela", "Ime klijenta", "Prezime klijenta", "Broj telefona", "email", "Datum dolaska", "Datum odlaska", "Tip sobe"};
+            writer.writeNext(header);
+
+            for (Reservation reservation: reservationList) {
+                String[] data = {reservation.getHotelName(), reservation.getFirstname(), reservation.getLastname(), reservation.getPhoneNumber(), reservation.getEmail(),
+                        reservation.getStartDate().toString(),reservation.getEndDate().toString(),reservation.getRoomType().toString()};
+                writer.writeNext(data);
+
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }
