@@ -2,6 +2,7 @@ package org.qubitsoft;
 
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Objects;
 
 
 public class Reservation {
@@ -101,5 +102,18 @@ public class Reservation {
 
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reservation that = (Reservation) o;
+        return Objects.equals(hotelName, that.hotelName) && Objects.equals(firstname, that.firstname) && Objects.equals(lastname, that.lastname) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && Objects.equals(startDate, that.startDate) && Objects.equals(endDate, that.endDate) && roomType == that.roomType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hotelName, firstname, lastname, phoneNumber, email, startDate, endDate, roomType);
     }
 }

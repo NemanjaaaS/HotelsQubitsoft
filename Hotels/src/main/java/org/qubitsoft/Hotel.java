@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Hotel {
     private String name;
@@ -26,7 +27,7 @@ public class Hotel {
     }
     public Hotel(){}
 
-    public int checkCapacity(String hotelName, LocalDate startDate, LocalDate endDate) {
+    private int checkCapacity(String hotelName, LocalDate startDate, LocalDate endDate) {
         CsvReader reader = new CsvReader();
         List<Reservation> reservationList = reader.loadReservations(csvPath);
         int takenRooms = 0;
@@ -38,7 +39,7 @@ public class Hotel {
         return takenRooms;
     }
 
-    public int checkCapacityForRoomType(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
+    private int checkCapacityForRoomType(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
         CsvReader reader = new CsvReader();
         List<Reservation> reservationList = reader.loadReservations(csvPath);
         int takenRooms = 0;
@@ -64,7 +65,7 @@ public class Hotel {
         return takenRooms;
     }
 
-    public boolean checkReservation(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
+    private boolean checkReservation(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
         int stayDays = startDate.until(endDate).getDays();
         int freeRooms = getRoomCapacity() - checkCapacity(hotelName, startDate, endDate);
         int freeRoomsByType = getRoomCapacityByType().getOrDefault(roomType, 0) - checkCapacityForRoomType(hotelName, startDate, endDate, roomType);
@@ -88,12 +89,12 @@ public class Hotel {
         return false;
     }
 
-    public void createReservation(String clientFirstName, String clientLastName,
+    public void createReservation(String hotelName,String clientFirstName, String clientLastName,
                                   String phoneNumber, String email, LocalDate startDate,
                                   LocalDate endDate, RoomType roomType) {
         CsvReader reader = new CsvReader();
-        if (!checkReservation(this.name, startDate, endDate, roomType)) {
-            Reservation reservation = new Reservation(this.name, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
+        if (!checkReservation(hotelName, startDate, endDate, roomType)) {
+            Reservation reservation = new Reservation(hotelName, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
 
             List<Reservation> reservationList = reader.loadReservations(csvPath);
             reservationList.add(reservation);
@@ -116,18 +117,49 @@ public class Hotel {
     }
 
 
-    public void cancelReservation(String clientFirstName, String clientLastName, String phoneNumber, String email,String hotelName){
-        List<Reservation> clientReservations = findReservations(clientFirstName,clientLastName,phoneNumber,email,hotelName);
+    private void cancelReservation(Reservation reservationToCancel){
+        CsvReader reader = new CsvReader();
+        List<Reservation> allReservations = reader.loadReservations(csvPath);
+        System.out.println("To cancel  "+reservationToCancel.toString());
+        allReservations.remove(reservationToCancel);
+        for(Reservation res : allReservations){
+            if(res.equals(reservationToCancel)){
+                System.out.println("Poklapaju se: ");
+                System.out.println(res.getFirstname());
+                System.out.println(reservationToCancel.getFirstname());
+            }
+            System.out.println("RES "+res);
+        }
+        reader.writeReservation(allReservations,csvPath);
+    }
+
+
+    public void showUserReservationToCancel(String clientFirstname, String clientLastname, String phoneNumber, String email, String hotelName){
+        Scanner scanner = new Scanner(System.in);
+        List<Reservation> clientReservations = findReservations(clientFirstname,clientLastname,phoneNumber,email,hotelName);
         if(clientReservations.isEmpty()){
-            System.out.println("No active reservations!");
-        } else {
-            System.out.println("Your active reservations: ");
+            System.out.println("Nemate aktivnih rezervacija u " + hotelName + ".");
+        }else{
+            System.out.println("Vase rezervacije: ");
             for(int i = 0; i < clientReservations.size(); i++){
-                System.out.println((i+1) + ". "+ clientReservations.get(i));
+                System.out.println((i+1) + "." + clientReservations.get(i).toString());
+            }
+
+            System.out.println("Unesite redni broj rezervacije koju zelite da otkazete.");
+            int selectedReservationIndex = scanner.nextInt();
+            System.out.println("Izabran index "+selectedReservationIndex);
+
+            if(selectedReservationIndex > 0 && selectedReservationIndex <= clientReservations.size()){
+                Reservation selectedReservation = clientReservations.get(selectedReservationIndex-1);
+                System.out.println("Izabrana rezervacija "+selectedReservation.toString());
+                cancelReservation(selectedReservation);
+
+                System.out.println("Uspesno otkazano");
+            }else {
+                System.out.println("Niste validan unos!");
             }
         }
     }
-
     private List<Reservation> findReservations(String clientFirstname, String clientLastname, String phoneNumber, String email, String hotelName) {
         List<Reservation> clientReservations = new ArrayList<>();
         List<Reservation> reservationList = new ArrayList<>();
@@ -141,6 +173,23 @@ public class Hotel {
             }
         }
         return clientReservations;
+    }
+
+    public void insertMultipleReservations(String clientCsvPath){
+        CsvReader reader = new CsvReader();
+        List<Reservation> clientsReservationsList = reader.loadReservations(clientCsvPath);
+        List<Reservation> hotelsReservationsList = reader.loadReservations(csvPath);
+
+        for (Reservation reservation: clientsReservationsList) {
+            if(!checkReservation(reservation.getHotelName(),reservation.getStartDate(),reservation.getEndDate(),reservation.getRoomType())){
+                hotelsReservationsList.add(reservation);
+                System.out.println("Rezervacija za hotel " + reservation.getHotelName() +" je odobrena. Datum: " + reservation.getStartDate().toString()+ " - " + reservation.getEndDate().toString());
+            }else{
+                System.out.println("Odbijena rezervacija za hotel " + reservation.getHotelName() +". Datum: " + reservation.getStartDate().toString()+ " - " + reservation.getEndDate().toString());
+            }
+        }
+        reader.writeReservation(hotelsReservationsList,csvPath);
+
     }
     public String getCsvPath() {
         return csvPath;

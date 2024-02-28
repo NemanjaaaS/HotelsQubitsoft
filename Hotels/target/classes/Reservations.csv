@@ -1,7 +1,5 @@
 "Naziv hotela","Ime klijenta","Prezime klijenta","Broj telefona","email","Datum dolaska","Datum odlaska","Tip sobe"
-"Hilton","Nemanja","Stefanovic","065111555","nemanja@gmail.com","2024-03-09","2024-03-14","SINGLE"
 "Marriott","Nikola","Nikolic","0642223331","nikola@gmail.com","2024-03-17","2024-03-16","DOUBLE"
-"InterContinental","Marija","Markovic","0651233321","marija@gmail.com","2024-03-10","2024-03-11","TRIPLE"
 "Hilton","Lazar","Nikolic","0651230000","lazar@gmail.com","2024-06-09","2024-06-11","DOUBLE"
 "Marriott","Nikola","Petrovic","0642221111","petrovic@gmail.com","2024-09-17","2024-09-21","SINGLE"
 "InterContinental","Jelena","Simic","065127777","jelena@gmail.com","2024-03-10","2024-03-12","SINGLE"
