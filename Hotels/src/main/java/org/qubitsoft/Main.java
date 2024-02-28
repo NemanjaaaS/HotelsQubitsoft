@@ -114,7 +114,7 @@ public class Main {
                     System.out.println("Unesite putanju do vaseg CSV fajla");
                     scanner.nextLine();
                     String clientsCSVPath = scanner.nextLine();
-                    hotel.insertMultipleReservations(clientsCSVPath);
+                    hotel.insertMultipleReservations(clientsCSVPath,hilton,marriot,interContinental);
                 default:
                     System.out.println("Unesite validnu opciju!");
             }

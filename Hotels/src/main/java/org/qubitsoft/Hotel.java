@@ -175,12 +175,25 @@ public class Hotel {
         return clientReservations;
     }
 
-    public void insertMultipleReservations(String clientCsvPath){
+    public void insertMultipleReservations(String clientCsvPath,Hotel hilton, Hotel marriot, Hotel interContinental){
         CsvReader reader = new CsvReader();
         List<Reservation> clientsReservationsList = reader.loadReservations(clientCsvPath);
         List<Reservation> hotelsReservationsList = reader.loadReservations(csvPath);
 
         for (Reservation reservation: clientsReservationsList) {
+            if (reservation.getHotelName().equals(hilton.getName())){
+                setName(hilton.getName());
+                setRoomCapacity(hilton.getRoomCapacity());
+                setRoomCapacityByType(hilton.getRoomCapacityByType());
+            } else if (reservation.getHotelName().equals(marriot.getName())) {
+                setName(marriot.getName());
+                setRoomCapacity(marriot.getRoomCapacity());
+                setRoomCapacityByType(marriot.getRoomCapacityByType());
+            }else{
+                setName(interContinental.getName());
+                setRoomCapacity(interContinental.getRoomCapacity());
+                setRoomCapacityByType(interContinental.getRoomCapacityByType());
+            }
             if(!checkReservation(reservation.getHotelName(),reservation.getStartDate(),reservation.getEndDate(),reservation.getRoomType())){
                 hotelsReservationsList.add(reservation);
                 System.out.println("Rezervacija za hotel " + reservation.getHotelName() +" je odobrena. Datum: " + reservation.getStartDate().toString()+ " - " + reservation.getEndDate().toString());
