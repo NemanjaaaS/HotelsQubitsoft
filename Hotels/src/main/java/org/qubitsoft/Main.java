@@ -19,10 +19,10 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
 
-        Hotel hilton = new Hotel("Hilton", 8, createRoomTypeCapacity(2,4,2));
+        Hotel hilton = new Hotel("Hilton", 5, createRoomTypeCapacity(2,2,1));
 
 
-        Hotel marriot = new Hotel("Marriott", 10, createRoomTypeCapacity(5,2,3));
+        Hotel marriott = new Hotel("Marriott", 10, createRoomTypeCapacity(5,2,3));
 
 
         Hotel interContinental = new Hotel("Marriott", 10, createRoomTypeCapacity(7,2,1));
@@ -42,34 +42,34 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    System.out.println("Unesite naziv hotela: (Hilton, Marriott, InterContinental)");
+                    System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
                     scanner.nextLine();
                     String hotelName = scanner.nextLine();
 
-                    System.out.print("Unesite svoje ime: ");
+                    System.out.print("Insert your firstname: ");
                     String clientFirstName = scanner.nextLine();
 
-                    System.out.print("Unesite svoje prezime: ");
+                    System.out.print("Insert your lastname: ");
                     String clientLastName = scanner.nextLine();
 
-                    System.out.print("Unesite broj telefona: ");
+                    System.out.print("Insert your phone number: ");
                     String phoneNumber = scanner.nextLine();
 
-                    System.out.print("Unesite email: ");
+                    System.out.print("Insert your email: ");
                     String email = scanner.nextLine();
 
-                    System.out.print("Unesite datum dolaska (YYYY-MM-DD): ");
+                    System.out.print("Insert arrival date (YYYY-MM-DD): ");
                     LocalDate startDate = LocalDate.parse(scanner.nextLine());
 
-                    System.out.print("Unesite datum odlaska (YYYY-MM-DD): ");
+                    System.out.print("Insert leave date (YYYY-MM-DD): ");
                     LocalDate endDate = LocalDate.parse(scanner.nextLine());
 
-                    System.out.print("Unesite tip sobe (single, double, apartment): ");
+                    System.out.print("Insert room type (single, double, apartment): ");
                     String roomTypeString = scanner.nextLine();
                     RoomType roomType = RoomType.valueOf(roomTypeString.toUpperCase());
 
-                    if (hotelName.equals("Marriot")) {
-                        marriot.createReservation(hotelName, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
+                    if (hotelName.equals("Marriott")) {
+                        marriott.createReservation(hotelName, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
                     } else if (hotelName.equals("Hilton")) {
                         hilton.createReservation(hotelName, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
                     } else {
@@ -79,47 +79,48 @@ public class Main {
 
                     break;
                 case 2:
-                    System.out.println("Unesite redni broj hotela: (Hilton, Marriott, InterContinental)");
+                    System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
                     scanner.nextLine();
                     String hotelNameInfo = scanner.nextLine();
 
-                    System.out.println("Unesite datum dolaska (YYYY-MM-DD): ");
+                    System.out.println("Insert arrival date (YYYY-MM-DD): ");
                     LocalDate startDateInfo = LocalDate.parse(scanner.nextLine());
 
-                    System.out.print("Unesite datum odlaska (YYYY-MM-DD): ");
+                    System.out.print("Insert leave date (YYYY-MM-DD): ");
                     LocalDate endDateInfo = LocalDate.parse(scanner.nextLine());
 
                     hotel.loadReservationsInfo(hotelNameInfo, startDateInfo, endDateInfo);
                     break;
                 case 3:
-                    System.out.print("Unesite svoje ime: ");
+                    System.out.print("Insert your firstname: ");
                     scanner.nextLine();
                     String clientFirstNameCancel = scanner.nextLine();
 
-                    System.out.print("Unesite svoje prezime: ");
+                    System.out.print("Insert your lastname: ");
                     String clientLastNameCancel = scanner.nextLine();
 
-                    System.out.print("Unesite broj telefona: ");
+                    System.out.print("Insert your phone number: ");
                     String phoneNumberCancel = scanner.nextLine();
 
-                    System.out.print("Unesite email: ");
+                    System.out.print("Insert your email: ");
                     String emailCancel = scanner.nextLine();
 
-                    System.out.println("Unesite naziv hotela: (Hilton, Marriott, InterContinental)");
+                    System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
 
                     String hotelNameCancel = scanner.nextLine();
                     hotel.showUserReservationToCancel(clientFirstNameCancel, clientLastNameCancel, phoneNumberCancel, emailCancel, hotelNameCancel);
                     break;
                 case 4:
-                    System.out.println("Unesite putanju do vaseg CSV fajla");
+                    System.out.println("Insert your CSV path");
                     scanner.nextLine();
                     String clientsCSVPath = scanner.nextLine();
-                    hotel.insertMultipleReservations(clientsCSVPath,hilton,marriot,interContinental);
+                    hotel.insertMultipleReservations(clientsCSVPath,hilton,marriott,interContinental);
                 default:
-                    System.out.println("Unesite validnu opciju!");
+                    System.out.println("Insert valid option!");
             }
         }
     }
+
     private static Map<RoomType, Integer> createRoomTypeCapacity(int single, int doubleRoom, int apartment) {
         Map<RoomType, Integer> roomTypeCapacity = new HashMap<>();
         roomTypeCapacity.put(RoomType.SINGLE, single);

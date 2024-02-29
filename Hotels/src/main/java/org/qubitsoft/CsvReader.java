@@ -15,6 +15,21 @@ import java.util.List;
 
 
 public class CsvReader {
+    /**
+     * Loads reservations from a CSV file specified by the given path.
+     * <p>
+     * This method reads reservation data from a CSV file, creates Reservation objects,
+     * and adds them to a list. The CSV file is expected to have the following format:
+     * <p>
+     * HotelName,ClientFirstName,ClientLastName,PhoneNumber,Email,StartDate,EndDate,RoomType
+     * "HILTON","NEMANJA","STEFA","050444","nemanja@gmail,com","2024-06-01","2024-06-10","SINGLE"
+     * "HILTON","NIKOLA","NIKOLIC","05555","nikola@gmail.com","2024-06-01","2024-06-10","SINGLE"
+     * ...
+     *
+     * @param csvPath The path to the CSV file containing reservation data.
+     * @return A list of Reservation objects loaded from the CSV file.
+     * @throws RuntimeException If there is an error reading or parsing the CSV file.
+     */
     public List<Reservation> loadReservations(String csvPath) {
         List<Reservation> reservationList = new ArrayList<>();
 
@@ -41,14 +56,26 @@ public class CsvReader {
         return reservationList;
     }
 
-    public void writeReservation(List<Reservation> reservationList, String csvPath){
-        try(CSVWriter writer = new CSVWriter(new FileWriter(csvPath))){
+    /**
+     * Writes a list of reservations to a CSV file specified by the given path.
+     * <p>
+     * This method takes a list of Reservation objects, converts them to CSV format,
+     * and writes them to a CSV file. The CSV file will have the following header:
+     * <p>
+     * HotelName,ClientFirstName,ClientLastName,PhoneNumber,Email,StartDate,EndDate,RoomType
+     *
+     * @param reservationList The list of Reservation objects to be written to the CSV file.
+     * @param csvPath         The path to the CSV file where reservations will be written.
+     * @throws RuntimeException If there is an error writing the reservations to the CSV file.
+     */
+    public void writeReservation(List<Reservation> reservationList, String csvPath) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(csvPath))) {
             String[] header = {"Naziv hotela", "Ime klijenta", "Prezime klijenta", "Broj telefona", "email", "Datum dolaska", "Datum odlaska", "Tip sobe"};
             writer.writeNext(header);
 
-            for (Reservation reservation: reservationList) {
-                String[] data = {reservation.getHotelName(), reservation.getFirstname(), reservation.getLastname(), reservation.getPhoneNumber(), reservation.getEmail(),
-                        reservation.getStartDate().toString(),reservation.getEndDate().toString(),reservation.getRoomType().toString()};
+            for (Reservation reservation : reservationList) {
+                String[] data = {reservation.getHotelName().toUpperCase(), reservation.getFirstname().toUpperCase(), reservation.getLastname().toUpperCase(), reservation.getPhoneNumber(), reservation.getEmail(),
+                        reservation.getStartDate().toString(), reservation.getEndDate().toString(), reservation.getRoomType().toString()};
                 writer.writeNext(data);
 
             }

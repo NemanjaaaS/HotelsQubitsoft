@@ -17,7 +17,6 @@ public class Hotel {
     private Map<RoomType, Integer> roomCapacityByType;
 
 
-
     private String csvPath = "Hotels/src/main/resources/Reservations.csv";
 
     public Hotel(String name, int roomCapacity, Map<RoomType, Integer> roomCapacityByType) {
@@ -25,26 +24,47 @@ public class Hotel {
         this.roomCapacity = roomCapacity;
         this.roomCapacityByType = roomCapacityByType;
     }
-    public Hotel(){}
 
+    public Hotel() {
+    }
+
+    /**
+     * Checks the number of rooms already reserved for a specific hotel
+     * between the given start and end dates.
+     *
+     * @param hotelName The name of the hotel to check capacity for.
+     * @param startDate The start date for the reservation.
+     * @param endDate   The end date for the reservation.
+     * @return The number of rooms already reserved for the specific hotel during the given period.
+     */
     private int checkCapacity(String hotelName, LocalDate startDate, LocalDate endDate) {
         CsvReader reader = new CsvReader();
         List<Reservation> reservationList = reader.loadReservations(csvPath);
         int takenRooms = 0;
         for (Reservation reservation : reservationList) {
-            if (hotelName.equals(reservation.getHotelName())) {
+            if (hotelName.equalsIgnoreCase(reservation.getHotelName())) {
                 takenRooms = getTakenRooms(startDate, endDate, takenRooms, reservation);
             }
         }
         return takenRooms;
     }
 
+    /**
+     * Checks the number of rooms of specific type already reserved for a specific hotel
+     * between the given start and end dates.
+     *
+     * @param hotelName The name of the hotel to check capacity for.
+     * @param startDate The start date for the reservation.
+     * @param endDate   The end date for the reservation.
+     * @param roomType  The type of room for the reservation (single, double, apartment)
+     * @return The number of rooms already reserved for the specific hotel during the given period.
+     */
     private int checkCapacityForRoomType(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
         CsvReader reader = new CsvReader();
         List<Reservation> reservationList = reader.loadReservations(csvPath);
         int takenRooms = 0;
         for (Reservation reservation : reservationList) {
-            if (hotelName.equals(reservation.getHotelName()) && roomType.equals(reservation.getRoomType())) {
+            if (hotelName.equalsIgnoreCase(reservation.getHotelName()) && roomType.equals(reservation.getRoomType())) {
                 takenRooms = getTakenRooms(startDate, endDate, takenRooms, reservation);
             }
         }
@@ -52,6 +72,16 @@ public class Hotel {
 
     }
 
+    /**
+     * Calculates the number of rooms already taken for a reservation period
+     * based on the given start and end dates and the existing reservation details.
+     *
+     * @param startDate   The start date for the new reservation period.
+     * @param endDate     The end date for the new reservation period.
+     * @param takenRooms  The current count of taken rooms to be updated.
+     * @param reservation The existing reservation to compare against.
+     * @return The updated count of taken rooms considering the new reservation period.
+     */
     private int getTakenRooms(LocalDate startDate, LocalDate endDate, int takenRooms, Reservation reservation) {
         if (startDate.isAfter(reservation.getStartDate()) && startDate.isBefore(reservation.getEndDate())) {
             takenRooms++;
@@ -65,6 +95,19 @@ public class Hotel {
         return takenRooms;
     }
 
+    /**
+     * Checks the availability and validate reservation based on the provided parameters.
+     * <p>
+     * Hilton decline reservation if stay days are less than 2 or there aren't free rooms.
+     * Marriott decline reservation if stay days are less than 3 or there aren't free specific rooms (single, double, apartments).
+     * InterContinental decline reservation if stay days are less than 1.
+     *
+     * @param hotelName The name of the hotel for the reservation.
+     * @param startDate The start date of the reservation.
+     * @param endDate   The end date of the reservation.
+     * @param roomType  The type of room for the reservation.
+     * @return {@code true} if the reservation is declined, {@code false} otherwise.
+     */
     private boolean checkReservation(String hotelName, LocalDate startDate, LocalDate endDate, RoomType roomType) {
         int stayDays = startDate.until(endDate).getDays();
         int freeRooms = getRoomCapacity() - checkCapacity(hotelName, startDate, endDate);
@@ -76,20 +119,32 @@ public class Hotel {
         } else if (freeRooms <= 0) {
             System.out.println("Your reservation in " + hotelName + " is declined. There are no free rooms.");
             return true;
-        } else if (hotelName.equals("Hilton") && stayDays < 2) {
+        } else if (hotelName.equalsIgnoreCase("Hilton") && stayDays < 2) {
             System.out.println("Your reservation in " + hotelName + " is declined. You need to reserve more than 2 days.");
             return true;
-        } else if (hotelName.equals("Marriott") && stayDays < 3) {
+        } else if (hotelName.equalsIgnoreCase("Marriott") && stayDays < 3) {
             System.out.println("Your reservation in" + hotelName + " is declined. You need to reserve more than 3 days.");
             return true;
-        } else if (hotelName.equals("Marriott") && freeRoomsByType <= 0) {
+        } else if (hotelName.equalsIgnoreCase("Marriott") && freeRoomsByType <= 0) {
             System.out.println("Your reservation in" + hotelName + " is declined. There are no free rooms of that type.");
             return true;
         }
         return false;
     }
 
-    public void createReservation(String hotelName,String clientFirstName, String clientLastName,
+    /**
+     * Creates a reservation for a hotel based on the provided parameters.
+     *
+     * @param hotelName       The name of the hotel for the reservation.
+     * @param clientFirstName The first name of the client making the reservation.
+     * @param clientLastName  The last name of the client making the reservation.
+     * @param phoneNumber     The phone number of the client making the reservation.
+     * @param email           The email address of the client making the reservation.
+     * @param startDate       The start date of the reservation.
+     * @param endDate         The end date of the reservation.
+     * @param roomType        The type of room for the reservation.
+     */
+    public void createReservation(String hotelName, String clientFirstName, String clientLastName,
                                   String phoneNumber, String email, LocalDate startDate,
                                   LocalDate endDate, RoomType roomType) {
         CsvReader reader = new CsvReader();
@@ -106,60 +161,79 @@ public class Hotel {
         }
     }
 
-    public void loadReservationsInfo(String hotelName, LocalDate startDate, LocalDate endDate){
+    /**
+     * Loads and displays reservation information for a specific hotel within the given date range.
+     *
+     * @param hotelName The name of the hotel for which reservation information is requested.
+     * @param startDate The start date of the date range.
+     * @param endDate   The end date of the date range.
+     */
+    public void loadReservationsInfo(String hotelName, LocalDate startDate, LocalDate endDate) {
         CsvReader reader = new CsvReader();
         List<Reservation> reservationList = reader.loadReservations(csvPath);
-        for(Reservation reservation : reservationList){
-            if(hotelName.equals(reservation.getHotelName()) && startDate.equals(reservation.getStartDate()) && endDate.equals(reservation.getEndDate())){
+        for (Reservation reservation : reservationList) {
+            if (hotelName.equalsIgnoreCase(reservation.getHotelName()) && startDate.equals(reservation.getStartDate()) && endDate.equals(reservation.getEndDate())) {
                 System.out.println(reservation);
             }
         }
     }
 
-
-    private void cancelReservation(Reservation reservationToCancel){
+    /**
+     * Cancels the specified reservation by removing it from the list of reservations and updating the CSV file.
+     *
+     * @param reservationToCancel The reservation to be canceled.
+     */
+    private void cancelReservation(Reservation reservationToCancel) {
         CsvReader reader = new CsvReader();
         List<Reservation> allReservations = reader.loadReservations(csvPath);
-        System.out.println("To cancel  "+reservationToCancel.toString());
         allReservations.remove(reservationToCancel);
-        for(Reservation res : allReservations){
-            if(res.equals(reservationToCancel)){
-                System.out.println("Poklapaju se: ");
-                System.out.println(res.getFirstname());
-                System.out.println(reservationToCancel.getFirstname());
-            }
-            System.out.println("RES "+res);
-        }
-        reader.writeReservation(allReservations,csvPath);
+        reader.writeReservation(allReservations, csvPath);
     }
 
-
-    public void showUserReservationToCancel(String clientFirstname, String clientLastname, String phoneNumber, String email, String hotelName){
+    /**
+     * Displays the list of reservations for a specific user and prompts them to select a reservation for cancellation.
+     *
+     * @param clientFirstname First name of the client.
+     * @param clientLastname  Last name of the client.
+     * @param phoneNumber     Phone number of the client.
+     * @param email           Email of the client.
+     * @param hotelName       Name of the hotel.
+     */
+    public void showUserReservationToCancel(String clientFirstname, String clientLastname, String phoneNumber, String email, String hotelName) {
         Scanner scanner = new Scanner(System.in);
-        List<Reservation> clientReservations = findReservations(clientFirstname,clientLastname,phoneNumber,email,hotelName);
-        if(clientReservations.isEmpty()){
-            System.out.println("Nemate aktivnih rezervacija u " + hotelName + ".");
-        }else{
-            System.out.println("Vase rezervacije: ");
-            for(int i = 0; i < clientReservations.size(); i++){
-                System.out.println((i+1) + "." + clientReservations.get(i).toString());
+        List<Reservation> clientReservations = findReservations(clientFirstname, clientLastname, phoneNumber, email, hotelName);
+        if (clientReservations.isEmpty()) {
+            System.out.println("You don't have active reservations in " + hotelName + " hotel.");
+        } else {
+            System.out.println("Your reservations: ");
+            for (int i = 0; i < clientReservations.size(); i++) {
+                System.out.println((i + 1) + ". " + clientReservations.get(i).toString());
             }
 
-            System.out.println("Unesite redni broj rezervacije koju zelite da otkazete.");
+            System.out.println("Enter the reservation number you want to cancel: ");
             int selectedReservationIndex = scanner.nextInt();
-            System.out.println("Izabran index "+selectedReservationIndex);
 
-            if(selectedReservationIndex > 0 && selectedReservationIndex <= clientReservations.size()){
-                Reservation selectedReservation = clientReservations.get(selectedReservationIndex-1);
-                System.out.println("Izabrana rezervacija "+selectedReservation.toString());
+            if (selectedReservationIndex > 0 && selectedReservationIndex <= clientReservations.size()) {
+                Reservation selectedReservation = clientReservations.get(selectedReservationIndex - 1);
                 cancelReservation(selectedReservation);
 
-                System.out.println("Uspesno otkazano");
-            }else {
-                System.out.println("Niste validan unos!");
+                System.out.println("Cancellation successful!");
+            } else {
+                System.out.println("Input not valid!");
             }
         }
     }
+
+    /**
+     * Finds reservations for a specific user based on the provided details.
+     *
+     * @param clientFirstname First name of the client.
+     * @param clientLastname  Last name of the client.
+     * @param phoneNumber     Phone number of the client.
+     * @param email           Email of the client.
+     * @param hotelName       Name of the hotel.
+     * @return List of reservations matching the provided client details and hotel name.
+     */
     private List<Reservation> findReservations(String clientFirstname, String clientLastname, String phoneNumber, String email, String hotelName) {
         List<Reservation> clientReservations = new ArrayList<>();
         List<Reservation> reservationList = new ArrayList<>();
@@ -167,43 +241,63 @@ public class Hotel {
         reservationList.addAll(reader.loadReservations(csvPath));
 
         for (Reservation reservation : reservationList) {
-            if (reservation.getFirstname().equals(clientFirstname) && reservation.getLastname().equals(clientLastname)
-                    && reservation.getPhoneNumber().equals(phoneNumber) && reservation.getEmail().equals(email) && reservation.getHotelName().equals(hotelName)) {
+            if (reservation.getFirstname().equalsIgnoreCase(clientFirstname) && reservation.getLastname().equalsIgnoreCase(clientLastname)
+                    && reservation.getPhoneNumber().equals(phoneNumber) && reservation.getEmail().equals(email) && reservation.getHotelName().equalsIgnoreCase(hotelName)) {
                 clientReservations.add(reservation);
             }
         }
         return clientReservations;
     }
 
-    public void insertMultipleReservations(String clientCsvPath,Hotel hilton, Hotel marriot, Hotel interContinental){
+    /**
+     * Inserts multiple reservations into the hotel system based on client reservations.
+     *
+     * @param clientCsvPath    The path to the CSV file containing client reservations.
+     * @param hilton           The Hilton hotel instance.
+     * @param marriott         The Marriott hotel instance.
+     * @param interContinental The InterContinental hotel instance.
+     */
+    public void insertMultipleReservations(String clientCsvPath, Hotel hilton, Hotel marriott, Hotel interContinental) {
         CsvReader reader = new CsvReader();
         List<Reservation> clientsReservationsList = reader.loadReservations(clientCsvPath);
         List<Reservation> hotelsReservationsList = reader.loadReservations(csvPath);
 
-        for (Reservation reservation: clientsReservationsList) {
-            if (reservation.getHotelName().equals(hilton.getName())){
-                setName(hilton.getName());
-                setRoomCapacity(hilton.getRoomCapacity());
-                setRoomCapacityByType(hilton.getRoomCapacityByType());
-            } else if (reservation.getHotelName().equals(marriot.getName())) {
-                setName(marriot.getName());
-                setRoomCapacity(marriot.getRoomCapacity());
-                setRoomCapacityByType(marriot.getRoomCapacityByType());
-            }else{
-                setName(interContinental.getName());
-                setRoomCapacity(interContinental.getRoomCapacity());
-                setRoomCapacityByType(interContinental.getRoomCapacityByType());
-            }
-            if(!checkReservation(reservation.getHotelName(),reservation.getStartDate(),reservation.getEndDate(),reservation.getRoomType())){
+        for (Reservation reservation : clientsReservationsList) {
+            setHotelProperties(reservation, hilton, marriott, interContinental);
+            if (!checkReservation(reservation.getHotelName(), reservation.getStartDate(), reservation.getEndDate(), reservation.getRoomType())) {
                 hotelsReservationsList.add(reservation);
-                System.out.println("Rezervacija za hotel " + reservation.getHotelName() +" je odobrena. Datum: " + reservation.getStartDate().toString()+ " - " + reservation.getEndDate().toString());
-            }else{
-                System.out.println("Odbijena rezervacija za hotel " + reservation.getHotelName() +". Datum: " + reservation.getStartDate().toString()+ " - " + reservation.getEndDate().toString());
+                System.out.println("Reservation for  " + reservation.getHotelName() + " hotel is approved. Date: " + reservation.getStartDate().toString() + " - " + reservation.getEndDate().toString());
+            } else {
+                System.out.println("Rejected hotel reservation for " + reservation.getHotelName() + ". Date: " + reservation.getStartDate().toString() + " - " + reservation.getEndDate().toString());
             }
         }
-        reader.writeReservation(hotelsReservationsList,csvPath);
-
+        reader.writeReservation(hotelsReservationsList, csvPath);
     }
+
+    /**
+     * Sets the properties of the hotel based on the reservation.
+     *
+     * @param reservation      The reservation for which hotel properties are to be set.
+     * @param hilton           The Hilton hotel instance.
+     * @param marriott         The Marriott hotel instance.
+     * @param interContinental The InterContinental hotel instance.
+     */
+    private void setHotelProperties(Reservation reservation, Hotel hilton, Hotel marriott, Hotel interContinental) {
+        if (reservation.getHotelName().equalsIgnoreCase(hilton.getName())) {
+            setName(hilton.getName());
+            setRoomCapacity(hilton.getRoomCapacity());
+            setRoomCapacityByType(hilton.getRoomCapacityByType());
+        } else if (reservation.getHotelName().equalsIgnoreCase(marriott.getName())) {
+            setName(marriott.getName());
+            setRoomCapacity(marriott.getRoomCapacity());
+            setRoomCapacityByType(marriott.getRoomCapacityByType());
+        } else {
+            setName(interContinental.getName());
+            setRoomCapacity(interContinental.getRoomCapacity());
+            setRoomCapacityByType(interContinental.getRoomCapacityByType());
+        }
+    }
+
     public String getCsvPath() {
         return csvPath;
     }
