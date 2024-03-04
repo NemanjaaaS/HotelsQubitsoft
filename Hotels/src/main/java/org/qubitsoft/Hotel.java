@@ -14,7 +14,7 @@ public class Hotel {
 
     private CsvReader reader;
 
-    private String csvPath = "D:\\GitHub\\HotelsQubitsoft\\Hotels\\src\\main\\resources\\Reservations.csv";
+    private String csvPath = "Hotels/src/main/resources/Reservations.csv";
 
 
     public Hotel(String name, int roomCapacity, Map<RoomType, Integer> roomCapacityByType, CsvReader reader) {
