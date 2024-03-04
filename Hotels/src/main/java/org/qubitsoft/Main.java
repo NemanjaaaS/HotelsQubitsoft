@@ -1,10 +1,12 @@
 package org.qubitsoft;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,24 +21,24 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
 
-        Hotel hilton = new Hotel("Hilton", 5, createRoomTypeCapacity(2,2,1));
+        Hotel hilton = new Hotel("Hilton", 5, createRoomTypeCapacity(2, 2, 1), reader);
 
 
-        Hotel marriott = new Hotel("Marriott", 10, createRoomTypeCapacity(5,2,3));
+        Hotel marriott = new Hotel("Marriott", 10, createRoomTypeCapacity(5, 2, 3), reader);
 
 
-        Hotel interContinental = new Hotel("Marriott", 10, createRoomTypeCapacity(7,2,1));
+        Hotel interContinental = new Hotel("Marriott", 10, createRoomTypeCapacity(7, 2, 1), reader);
 
 
-        Hotel hotel = new Hotel();
+        Hotel hotel = new Hotel(reader);
 
         while (true) {
-            System.out.println("Izaberite opciju:");
-            System.out.println("1. Krairajte rezervaciju");
-            System.out.println("2. Pregledaj rezervacije");
-            System.out.println("3. Otkazite rezervaciju");
-            System.out.println("4. Dodajte CSV fajl sa rezervacijama");
-            System.out.println("5. Izlaz");
+            System.out.println("Choose option:");
+            System.out.println("1. Create reservation");
+            System.out.println("2. Show reservations");
+            System.out.println("3. Cancel reservation");
+            System.out.println("4. Add CSV file with reservations");
+            System.out.println("5. Exit");
 
             int choice = scanner.nextInt();
 
@@ -45,6 +47,10 @@ public class Main {
                     System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
                     scanner.nextLine();
                     String hotelName = scanner.nextLine();
+                    if (!isValidHotelName(hotelName)) {
+                        System.out.println("Invalid hotel name!");
+                        break;
+                    }
 
                     System.out.print("Insert your firstname: ");
                     String clientFirstName = scanner.nextLine();
@@ -57,16 +63,36 @@ public class Main {
 
                     System.out.print("Insert your email: ");
                     String email = scanner.nextLine();
+                    if (!isValidEmail(email)) {
+                        System.out.println("Invalid email format!");
+                        break;
+                    }
+                    LocalDate startDate;
+                    try {
 
-                    System.out.print("Insert arrival date (YYYY-MM-DD): ");
-                    LocalDate startDate = LocalDate.parse(scanner.nextLine());
+                        System.out.print("Insert arrival date (YYYY-MM-DD): ");
+                        startDate = LocalDate.parse(scanner.nextLine());
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Invalid date format! Format should be: YYYY-MM-DD");
+                        break;
+                    }
 
-                    System.out.print("Insert leave date (YYYY-MM-DD): ");
-                    LocalDate endDate = LocalDate.parse(scanner.nextLine());
+                    LocalDate endDate;
+                    try {
 
+                        System.out.print("Insert leave date (YYYY-MM-DD): ");
+                        endDate = LocalDate.parse(scanner.nextLine());
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Invalid date format! Format should be: YYYY-MM-DD");
+                        break;
+                    }
                     System.out.print("Insert room type (single, double, apartment): ");
                     String roomTypeString = scanner.nextLine();
                     RoomType roomType = RoomType.valueOf(roomTypeString.toUpperCase());
+                    if (!isValidRoomType(roomTypeString)) {
+                        System.out.println("Invalid room type!");
+                        break;
+                    }
 
                     if (hotelName.equals("Marriott")) {
                         marriott.createReservation(hotelName, clientFirstName, clientLastName, phoneNumber, email, startDate, endDate, roomType);
@@ -82,12 +108,29 @@ public class Main {
                     System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
                     scanner.nextLine();
                     String hotelNameInfo = scanner.nextLine();
+                    if (!isValidHotelName(hotelNameInfo)) {
+                        System.out.println("Invalid hotel name!");
+                        break;
+                    }
 
-                    System.out.println("Insert arrival date (YYYY-MM-DD): ");
-                    LocalDate startDateInfo = LocalDate.parse(scanner.nextLine());
+                    LocalDate startDateInfo;
+                    try {
 
-                    System.out.print("Insert leave date (YYYY-MM-DD): ");
-                    LocalDate endDateInfo = LocalDate.parse(scanner.nextLine());
+                        System.out.print("Insert arrival date (YYYY-MM-DD): ");
+                        startDateInfo = LocalDate.parse(scanner.nextLine());
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Invalid date format! Format should be: YYYY-MM-DD");
+                        break;
+                    }
+                    LocalDate endDateInfo;
+                    try {
+
+                        System.out.print("Insert leave date (YYYY-MM-DD): ");
+                        endDateInfo = LocalDate.parse(scanner.nextLine());
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Invalid date format! Format should be: YYYY-MM-DD");
+                        break;
+                    }
 
                     hotel.loadReservationsInfo(hotelNameInfo, startDateInfo, endDateInfo);
                     break;
@@ -104,17 +147,26 @@ public class Main {
 
                     System.out.print("Insert your email: ");
                     String emailCancel = scanner.nextLine();
+                    if(!isValidEmail(emailCancel)){
+                        System.out.println("Invalid email format!");
+                        break;
+                    }
 
                     System.out.println("Insert hotel name: (Hilton, Marriott, InterContinental)");
-
                     String hotelNameCancel = scanner.nextLine();
+                    if(!isValidHotelName(hotelNameCancel)){
+                        System.out.println("Invalid hotel name!");
+                        break;
+                    }
                     hotel.showUserReservationToCancel(clientFirstNameCancel, clientLastNameCancel, phoneNumberCancel, emailCancel, hotelNameCancel);
                     break;
                 case 4:
                     System.out.println("Insert your CSV path");
                     scanner.nextLine();
                     String clientsCSVPath = scanner.nextLine();
-                    hotel.insertMultipleReservations(clientsCSVPath,hilton,marriott,interContinental);
+                    hotel.insertMultipleReservations(clientsCSVPath, hilton, marriott, interContinental);
+                case 5:
+                    System.exit(0);
                 default:
                     System.out.println("Insert valid option!");
             }
@@ -127,5 +179,20 @@ public class Main {
         roomTypeCapacity.put(RoomType.DOUBLE, doubleRoom);
         roomTypeCapacity.put(RoomType.APARTMENT, apartment);
         return roomTypeCapacity;
+    }
+
+    private static boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    private static boolean isValidRoomType(String roomType) {
+        return roomType.equalsIgnoreCase("single") || roomType.equalsIgnoreCase("double") || roomType.equalsIgnoreCase("apartment");
+    }
+
+    private static boolean isValidHotelName(String hotelName) {
+        return hotelName.equalsIgnoreCase("Hilton") || hotelName.equalsIgnoreCase("Marriott") || hotelName.equalsIgnoreCase("InterContinental") || hotelName.equalsIgnoreCase("");
     }
 }
